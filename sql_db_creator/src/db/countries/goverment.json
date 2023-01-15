@@ -1,0 +1,25 @@
+{
+    "scheme": {
+        "name": "VARCHAR(255)",
+        "polity_type": "VARCHAR(255)",
+        "constitution": "VARCHAR(255)",
+        "ministries": "INT(255)",
+        "capital": "VARCHAR(255)"
+    },
+    "data": [
+        {
+            "name": "Germany",
+            "polity_type": "Bicameral",
+            "constitution": "Basic Law for Germany",
+            "ministries": "15",
+            "capital": "Berlin"
+        },
+        {
+            "name": "United States of America",
+            "polity_type": "Bicameral",
+            "constitution": "United States Constitution",
+            "ministries": "15",
+            "capital": "Washington, D.C."
+        }
+    ]
+}

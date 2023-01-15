@@ -1,0 +1,25 @@
+{
+    "scheme": {
+        "name": "VARCHAR(255)",
+        "area": "INT(255)",
+        "region": "VARCHAR(255)",
+        "costline": "INT(255)",
+        "borders": "INT(255)"
+    },
+    "data": [
+        {
+            "name": "Germany",
+            "area": "357021",
+            "region": "Central Europe",
+            "costline": "2389",
+            "borders": "3714"
+        },
+        {
+            "name": "United States of America",
+            "area": "9826675",
+            "region": "North Americs",
+            "costline": "19920",
+            "borders": "12191"
+        }
+    ]
+}
