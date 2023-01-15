@@ -22,7 +22,8 @@ fn main() {
     for db in dbs {
         println!("{}", db.name);
         for table in db.tables {
-            println!("{}", table);
+            println!("{}", table.name);
+            println!("{}", table.path);
         }
     }
 }

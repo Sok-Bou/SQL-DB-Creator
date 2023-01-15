@@ -39,3 +39,18 @@ pub fn get_last_of_split<'a>(text: &'a str, seperator: &'a str) -> Option<&'a st
 
     None
 }
+
+pub fn get_first_of_split<'a>(text: &'a str, seperator: &'a str) -> Option<&'a str> {
+    let split = text.split(seperator);
+    let parts: Vec<&str> = split.collect();
+
+    if parts.len() > 0 {
+        let part = parts.first();
+        match part {
+            Some(name) => return Some(name),
+            None => return None
+        }
+    }
+
+    None
+}
