@@ -1,6 +1,9 @@
-use crate::util::sub_paths;
-use crate::util::get_last_of_split;
-use crate::util::get_first_of_split;
+#[path = "util.rs"]
+mod util;
+
+use util::sub_paths;
+use util::get_last_of_split;
+use util::get_first_of_split;
 
 pub struct Table {
     pub name: String,
