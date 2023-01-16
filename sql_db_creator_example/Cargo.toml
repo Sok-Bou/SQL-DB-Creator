@@ -1,5 +1,5 @@
 [package]
-name = "sql_db_creator"
+name = "sql_db_creator_example"
 version = "0.1.0"
 edition = "2021"
 
