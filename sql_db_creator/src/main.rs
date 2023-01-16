@@ -11,44 +11,55 @@ use sqlx::mysql::MySqlPool;
 use sqlx::Pool;
 use sqlx::MySql;
 use sqlx::Error;
-use sqlx::mysql::MySqlQueryResult;
 
+use sqlx::mysql::MySqlQueryResult;
 // use sqlx::postgres::PgPoolOptions;
 
-async fn connect() -> Result<Pool<MySql>, Error> {
+fn db_url(db_name: Option<&str>) -> String {
     let credentials = Credentials::new();
 
     let user = credentials.user;
     let password = credentials.password;
     let host = credentials.host;
 
-    println!("User: {user}, Password: {password}, Host: {host}");
+    match db_name {
+        Some(db_name) => return format!("mysql://{user}:{password}@{host}/{db_name}"),
+        None => return format!("mysql://{user}:{password}@{host}")
+    }
+}
 
-    let url = format!("mysql://{user}:{password}@{host}");
+async fn create_pool(db_name: Option<&str>) -> Result<Pool<MySql>, Error> {
+    let url = db_url(db_name);
 
     MySqlPool::connect(&url).await
 }
 
-async fn create_db(pool: &Pool<MySql>) -> Result<MySqlQueryResult, Error> {
-    sqlx::query("CREATE DATABASE IF NOT EXISTS test").execute(pool).await
+fn create_pools(dbs: &Vec<DB>, pool: &Pool<MySql>) -> Vec::<Pool<MySql>> {
+    let mut pools: Vec::<Pool<MySql>>  = Vec::new();
+
+    for db in dbs {
+        match block_on(create_db(&db.name, &pool)) {
+            Ok(_) => {
+                println!("Database created: {}", &db.name);
+
+                match block_on(create_pool(Some(&db.name))) {
+                    Ok(pool) => pools.push(pool),
+                    Err(e) => println!("Something went wron by trying to create a pool: {e}")
+                }
+            },
+            Err(e) => println!("Database could't be created: {e}")
+        }
+    }
+
+    pools
+}
+
+async fn create_db(name: &str, pool: &Pool<MySql>) -> Result<MySqlQueryResult, Error> {
+    let query = format!("CREATE DATABASE IF NOT EXISTS {name}");
+    sqlx::query(&query).execute(pool).await
 }
 
 fn main() {
-
-    let pool_future = connect();
-
-    match block_on(pool_future) {
-        Ok(pool) => {
-            match block_on(create_db(&pool)) {
-                Ok(query) => {
-                    println!("Database created: {:?}", query);
-                },
-                Err(e) => println!("Database could't be created: {e}")
-            }
-        },
-        Err(e) => println!("Pool could't be created: {e}")
-    }
-
 
     let db_name_paths = match sub_paths("./src/db/") {
         Ok(paths) => paths,
@@ -63,14 +74,21 @@ fn main() {
         dbs.push(DB::new(&db_name_path))
     }
 
-    for db in dbs {
-        println!("{}", db.name);
+    // for db in dbs {
+    //     println!("{}", db.name);
 
+    //     for table in db.tables {
+    //         println!("{}", table.name);
+    //         println!("{}", table.path);
+    //     }
+    // }
 
+    let pool_future_result = create_pool(None);
 
-        for table in db.tables {
-            println!("{}", table.name);
-            println!("{}", table.path);
-        }
+    match block_on(pool_future_result) {
+        Ok(pool) => {
+            let pools = create_pools(&dbs, &pool);
+        },
+        Err(e) => println!("Pool could't be created: {e}")
     }
 }
