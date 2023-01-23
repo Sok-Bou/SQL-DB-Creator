@@ -70,8 +70,8 @@ async fn create_table(pool: &Pool<Postgres>, table: &Table) -> Result<PgQueryRes
     query.push_str(&table.name);
     query.push_str(" (");
 
-    let scheme = &table.scheme;
-    for (key, value) in scheme {
+    let schema = &table.schema;
+    for (key, value) in schema {
         let value_new = &value[1..value.len() - 1];
 
         let line = format!("{} {}, ", key, value_new);
@@ -94,8 +94,8 @@ async fn create_table_data(pool: &Pool<Postgres>, table: &Table) -> Result<PgQue
     query.push_str(&table.name);
     query.push_str(" (");
 
-    let scheme = &table.scheme;
-    for (key, _) in scheme {
+    let schema = &table.schema;
+    for (key, _) in schema {
 
         let line = format!("{}, ", key);
         query.push_str(&line);

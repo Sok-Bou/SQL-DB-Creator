@@ -7,7 +7,7 @@ use serde_json::Value;
 pub struct Table {
     pub name: String,
     pub path: String,
-    pub scheme: HashMap<String, String>,
+    pub schema: HashMap<String, String>,
     pub data: Vec<HashMap<String, Value>>
 }
 
@@ -16,17 +16,17 @@ pub struct DB {
     pub tables: Vec<Table>
 }
 
-fn create_scheme(content: &str) -> HashMap<String, String> {
-    let mut scheme: HashMap<String, String> = HashMap::new();
+fn create_schema(content: &str) -> HashMap<String, String> {
+    let mut schema: HashMap<String, String> = HashMap::new();
 
     let value_hashmap: HashMap<String, Value> = serde_json::from_str(content).unwrap();
 
     for (key, value) in value_hashmap {
-        if key == "scheme" {
+        if key == "schema" {
             match value {
                 Value::Object(obj) => {
                     for i in &obj {
-                        scheme.insert(i.0.to_string(), i.1.to_string());
+                        schema.insert(i.0.to_string(), i.1.to_string());
                     }               
                 },
                 _ => ()
@@ -34,7 +34,7 @@ fn create_scheme(content: &str) -> HashMap<String, String> {
         }
     }
 
-    scheme
+    schema
 }
 
 fn create_data(content: &str) -> Vec<HashMap<String, Value>> {
@@ -78,12 +78,12 @@ impl DB {
 
         for table_name_path in table_name_paths {
 
-            let mut scheme: HashMap<String, String> = HashMap::new();
+            let mut schema: HashMap<String, String> = HashMap::new();
             let mut data: Vec<HashMap<String, Value>> = Vec::new();
             match fs::read_to_string(&table_name_path) {
                 Ok(content) => {
                     //println!("{content}");
-                    scheme = create_scheme(&content);
+                    schema = create_schema(&content);
                     data = create_data(&content);
                 },
                 Err(e) => println!("{e}")            
@@ -96,13 +96,13 @@ impl DB {
                         Some(name) => tables.push(Table {
                             name: name.to_string(),
                             path: table_name_path,
-                            scheme: scheme,
+                            schema: schema,
                             data: data
                         }),
                         None => tables.push(Table {
                             name: String::from(""),
                             path: String::from(""),
-                            scheme: scheme,
+                            schema: schema,
                             data: data
                         })
                     }
@@ -110,7 +110,7 @@ impl DB {
                 None => tables.push(Table {
                     name: String::from(""),
                     path: String::from(""),
-                    scheme: scheme,
+                    schema: schema,
                     data: data
                 })
             };

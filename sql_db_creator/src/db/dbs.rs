@@ -37,8 +37,8 @@ impl DBs {
                 println!("{}", table.name);
                 println!("{}", table.path);
 
-                let scheme = &table.scheme;
-                for (key, value) in scheme {
+                let schema = &table.schema;
+                for (key, value) in schema {
                     println!("    {key}, {value}");
                 }
 
