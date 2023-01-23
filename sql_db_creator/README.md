@@ -16,22 +16,38 @@ database. The name of the folder would be the name of the database.
 By now you folder structure should look like this
 
 📂  src
+
  ┣- 📂  db  // (1)
- ┃ ┣--- 📂 countries  // (2)            
+
+ ┃ ┣--- 📂 countries  // (2)   
+
  ┃ ┃ ┣ --- 📜  geography.json  // (3)     
+
  ┃ ┃ ┗ --- 📜  goverment.json  // (4)
+
  ┃ ┗--- 📂  flowers  // (5)
+
  ┃ ┃ ┣ --- 📜  infos.json  // (6)
+
  ┃ ┃ ┗ --- 📜  region.json  // (7)
+
  ┣ 📜  main.rs  // (8)
 
+
 (1) Required name 'db'
+
 (2) First database with name 'countries'
+
 (3) Table in database 'countries' with name 'geography'
+
 (4) Table in database 'countries' with name 'goverment'
+
 (5) Second database with name 'flowers'
+
 (6) Table in database 'flowers' with name 'infos'
+
 (7) Table in database 'flowers' with name 'region'
+
 (8) The main file
 
 4. Now the json files should have a specific structure to generate the columns of the table. The 
