@@ -1,6 +1,7 @@
 Generate sql databases by only configure the data of the databases in json files.
 
 Check the examples after reading.
+
 https://github.com/Sok-Bou/SQL-DB-Creator-Example
 
 With this crate you can generate multiple mysql or postgressql databases and fill 
@@ -51,8 +52,8 @@ By now you folder structure should look like this
 
 (8) The main file
 
-4. Now the json files should have a specific structure to generate the columns of the table. The 
-structures goes like this:
+4. Now the json files should have a specific structure to generate the columns of the tables. The 
+structure goes like this:
 
 (mysql example. Database: 'countries', Table: 'geography')
 
