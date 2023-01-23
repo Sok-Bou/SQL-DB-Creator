@@ -4,11 +4,11 @@ Check the examples after reading.
 https://github.com/Sok-Bou/SQL-DB-Creator-Example
 
 With this crate you can generate multiple mysql or postgressql databases and fill 
-the (optionally) with data.
+them (optional) with data.
 
 Steps:
 1. In the src directory add a folder with name db. It has to be in the src directory and with the 
-name db
+name 'db'
 2. Add one or more folders depending on how many databases you want. Most of the time it is one
 database. The name of the folder would be the name of the database.
 3. Add one or more json files. The names of the json files would be the names of the database tables.
@@ -17,21 +17,22 @@ By now you folder structure should look like this
 
 📂  src
 
- ┣- 📂  db  // (1)
+ ┣- 📂  db  (1)
 
- ┃ ┣--- 📂 countries  // (2)   
+ ┃ ┣--- 📂 countries  (2)   
 
- ┃ ┃ ┣ --- 📜  geography.json  // (3)     
+ ┃ ┃ ┣ --- 📜  geography.json  (3)     
 
- ┃ ┃ ┗ --- 📜  goverment.json  // (4)
+ ┃ ┃ ┗ --- 📜  government.json  (4)
 
- ┃ ┗--- 📂  flowers  // (5)
+ ┃ ┗--- 📂  flowers  (5)
 
- ┃ ┃ ┣ --- 📜  infos.json  // (6)
+ ┃ ┃ ┣ --- 📜  infos.json  (6)
 
- ┃ ┃ ┗ --- 📜  region.json  // (7)
+ ┃ ┃ ┗ --- 📜  region.json  (7)
 
- ┣ 📜  main.rs  // (8)
+ ┣ 📜  main.rs  (8)
+
 
 
 (1) Required name 'db'
@@ -40,7 +41,7 @@ By now you folder structure should look like this
 
 (3) Table in database 'countries' with name 'geography'
 
-(4) Table in database 'countries' with name 'goverment'
+(4) Table in database 'countries' with name 'government'
 
 (5) Second database with name 'flowers'
 
@@ -52,7 +53,8 @@ By now you folder structure should look like this
 
 4. Now the json files should have a specific structure to generate the columns of the table. The 
 structures goes like this:
-(mysql example)
+
+(mysql example. Database: 'countries', Table: 'geography')
 
 ```json
 {
@@ -85,12 +87,46 @@ structures goes like this:
 }
 ```
 
+(postgressql example. Database: 'countries', Table: 'geography')
+
+```json
+{
+    "schema": {
+        "name": "VARCHAR(255)",
+        "area": "INTEGER",
+        "region": "VARCHAR(255)",
+        "costline": "INTEGER",
+        "borders": "INTEGER",
+        "is_in_europe": "BOOLEAN"
+    },
+    "data": [
+        {
+            "name": "Germany",
+            "area": 357021,
+            "region": "Central Europe",
+            "costline": 2389,
+            "borders": 3714,
+            "is_in_europe": true
+        },
+        {
+            "name": "United States of America",
+            "area": 9826675,
+            "region": "North Americs",
+            "costline": 19920,
+            "borders": 12191,
+            "is_in_europe": false
+        }
+    ]
+}
+```
+
 In the schema part are the infos to create the schema of the table with column names and data types as they appear in the example above.
 In the data part are the infos to fill the table with our table data.
-The data section is optional. We can only generate the table. Of course in case we fill the table with data, we have to be carefull with the values.
+The data section is optional. We can only generate the table. Of course in case we fill the table with data, we have to be careful with the values.
 The values should have the right type as given in the schema.
 
 5. To generate the database run the following code in your main
+
 (mysql example)
 
 ```rust
@@ -105,5 +141,22 @@ fn main() {
     };
 
     setup(DBType::MySql, config);
+}
+```
+
+(postgressql example)
+
+```rust
+use sql_db_creator::{ DBType, Config, setup };
+
+fn main() {
+
+    let config = Config {
+        user: String::from("postgres"),
+        password: String::from("admin"),
+        host: String::from("localhost")
+    };
+
+    setup(DBType::PostgresSql, config);
 }
 ```
