@@ -1,6 +1,6 @@
 [package]
 name = "sql_db_creator"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 authors = ["Sokrates Bousios"]
 description = "Generate sql databases by only configure the data of the databases in json files. \n #sql #mysql #postgressql #database"
