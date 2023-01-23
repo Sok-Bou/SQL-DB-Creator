@@ -1,0 +1,1 @@
+Generate a sql database by only configure the database in a json file
