@@ -1,4 +1,7 @@
-Generate sql databases by only configure the data of the databases in json files.
+SQL DB Creator
+==============
+
+*Generate sql databases by only configure the data of the databases in json files*
 
 Check the examples after reading.
 
@@ -7,7 +10,9 @@ https://github.com/Sok-Bou/SQL-DB-Creator-Example
 With this crate you can generate multiple mysql or postgressql databases and fill 
 them (optional) with data.
 
-Steps:
+### Steps
+
+
 1. In the src directory add a folder with name db. It has to be in the src directory and with the 
 name 'db'
 2. Add one or more folders depending on how many databases you want. Most of the time it is one
