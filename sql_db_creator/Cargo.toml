@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Sokrates Bousios"]
 description = "Generate a sql database by only configure the database in a json file"
-licence = "MIT"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
