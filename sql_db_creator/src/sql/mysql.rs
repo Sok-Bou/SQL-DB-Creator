@@ -2,6 +2,7 @@ use crate::db::{ DBs, DB, Table };
 use crate::util::reduce_str;
 use crate::Config;
 
+use std::collections::HashMap;
 use futures::executor::block_on;
 use serde_json::Value;
 use sqlx::mysql::{ MySqlPool, MySqlQueryResult };
@@ -88,62 +89,59 @@ async fn create_table(pool: &Pool<MySql>, table: &Table) -> Result<MySqlQueryRes
     sqlx::query(&query).execute(pool).await
 }
 
-async fn create_table_data(pool: &Pool<MySql>, table: &Table) -> Result<MySqlQueryResult, Error> {
+async fn create_table_data_set(pool: &Pool<MySql>, table: &Table, data_set: &HashMap<String, Value>) -> Result<MySqlQueryResult, Error> {
     let mut column_names: Vec<&str> = Vec::new();
     let mut query = String::from("INSERT INTO ");
     query.push_str(&table.name);
     query.push_str(" (");
 
     let schema = &table.schema;
-    for (key, _) in schema {
-
-        let line = format!("{}, ", key);
-        query.push_str(&line);
-        column_names.push(&key);
+    for (s_key, _) in schema {
+        for (d_key, _) in data_set {
+            if s_key == d_key {
+                let line = format!("{}, ", s_key);
+                query.push_str(&line);
+                column_names.push(&s_key);
+            }
+        }
     }
     
     let mut query = reduce_str(&query, 0, 2);
 
-    query.push_str(") VALUES ");
+    query.push_str(") VALUES (");
 
-    for data_set in &table.data {
-        query.push_str("(");
-        for name in &column_names {
-            for (key, value) in data_set {
-                if key == name {
-                    let mut value_new_string = String::from("");
-    
-                    match value {
-                        Value::Null => println!("Null"),
-                        Value::Bool(b) => {
-                            value_new_string.push_str(&b.to_string());
-                        },
-                        Value::Number(number) => {
-                            value_new_string.push_str(&number.to_string());
-                        },
-                        Value::String(string) => {
-                            value_new_string.push('\'');
-                            value_new_string.push_str(string);
-                            value_new_string.push('\'');
-                        },
-                        Value::Array(value) => println!("value: {:?}", value),
-                        Value::Object(obj) => println!("obj: {:?}", obj)
-                    }
-        
+    for name in &column_names {
+        for (key, value) in data_set {
+            if key == name {
+                let mut value_new_string = String::from("");
+
+                match value {
+                    Value::Null => println!("Null"),
+                    Value::Bool(b) => {
+                        value_new_string.push_str(&b.to_string());
+                    },
+                    Value::Number(number) => {
+                        value_new_string.push_str(&number.to_string());
+                    },
+                    Value::String(string) => {
+                        value_new_string.push('\'');
+                        value_new_string.push_str(string);
+                        value_new_string.push('\'');
+                    },
+                    Value::Array(value) => println!("value: {:?}", value),
+                    Value::Object(obj) => println!("obj: {:?}", obj)
+                }
+
+                if value_new_string != "" {
                     let line = format!("{}, ", value_new_string);
                     query.push_str(&line);
                 }
             }
         }
-
-        let mut query_new = reduce_str(&query, 0, 2);
-        query_new.push_str("), ");
-
-        query = query_new;
     }
-    
+
     let mut query = reduce_str(&query, 0, 2);
-    query.push_str(";");
+    query.push_str(");");
 
     sqlx::query(&query).execute(pool).await
 }
@@ -156,9 +154,8 @@ pub fn setup_my_sql(config: Config) {
         Ok(connection_pool) => {
 
             for db in &dbs.dbs {
-                if let Err(e) = block_on(drop_db(&db.name, &connection_pool)) {
-                    println!("Database \"{}\" couldn't be dropped", &db.name);
-                    println!("{:?}", e);
+                if let Err(_) = block_on(drop_db(&db.name, &connection_pool)) {
+                    println!("Database \"{}\" could NOT be dropped. Probably the json has not the write format.", &db.name);
                 } else {
                     println!("Database \"{}\" dropped if existed", &db.name);
                 }
@@ -175,30 +172,34 @@ pub fn setup_my_sql(config: Config) {
                     let table_name = &table.name;
                     let table_result = create_table(&pool, &table);
 
-                    if let Err(e) = block_on(table_result) {
-                        println!("Table with name \"{}\" couldn't be created.", table_name);
-                        println!("{:?}", e);
+                    if let Err(_) = block_on(table_result) {
+                        println!("Table with name \"{}\" could NOT be created. Probably the json has not the write format.", table_name);
                     } else {
                         println!("New Table with name \"{}\" created in Database \"{}\".", table_name, db_name);
 
                         let min_size: usize = 0;
                         if &table.data.len() > &min_size {
-                            let data_result = create_table_data(&pool, &table);
 
-                            if let Err(e) = block_on(data_result) {
-                                println!("Table \"{}\" of Database \"{}\" couldn't be filled with datasets.", table_name, db_name);
-                                println!("{:?}", e);
-                            } else {
-                                println!("Table \"{}\" of Database \"{}\" successfully filled with datasets.", table_name, db_name);
+                            let mut counter = 1;
+                            for data in &table.data {
+                                if data.len() == 0 {
+                                    continue;
+                                }
+
+                                let data_set_result = create_table_data_set(&pool, &table, &data);
+
+                                if let Err(_) = block_on(data_set_result) {
+                                    println!("Table \"{}\" of Database \"{}\" could NOT be filled with a dataset. Probably the json has not the write format.", table_name, db_name);
+                                } else {
+                                    println!("Table \"{}\" of Database \"{}\" successfully filled with dataset Nr. {counter}", table_name, db_name);
+                                    counter += 1;
+                                }
                             }
                         }
                     }
                 }
             }
         },
-        Err(e) => {
-            println!("One or mor pools couldn't be created");
-            println!("{:?}", e);
-        }
+        Err(_) => println!("One or mor pools couldn't be created")
     }
 }

@@ -16,46 +16,66 @@ pub struct DB {
     pub tables: Vec<Table>
 }
 
-fn create_schema(content: &str) -> HashMap<String, String> {
+fn create_schema(content: &str, table_name_path: &str) -> HashMap<String, String> {
     let mut schema: HashMap<String, String> = HashMap::new();
 
-    let value_hashmap: HashMap<String, Value> = serde_json::from_str(content).unwrap();
-
-    for (key, value) in value_hashmap {
-        if key == "schema" {
-            match value {
-                Value::Object(obj) => {
-                    for i in &obj {
-                        schema.insert(i.0.to_string(), i.1.to_string());
-                    }               
-                },
-                _ => ()
+    match serde_json::from_str::<HashMap<String, Value>>(content) {
+        Ok(value_hashmap) => {
+            let mut found_schema = false;
+            for (key, value) in value_hashmap {
+                if key == "schema" {
+                    found_schema = true;
+                    match value {
+                        Value::Object(obj) => {
+                            for i in &obj {
+                                schema.insert(i.0.to_string(), i.1.to_string());
+                            }               
+                        },
+                        _ => ()
+                    }
+                }
             }
+
+            if !found_schema {
+                panic!("schema didn't found in {table_name_path}");
+            }
+
+            if schema.len() == 0 {
+                panic!("schema is empty in {table_name_path}");
+            }
+
+            schema
+        },
+        Err(_) => {
+            panic!("Something could be wrong with the json file. Maybe it is not valid.");
         }
     }
-
-    schema
 }
 
 fn create_data(content: &str) -> Vec<HashMap<String, Value>> {
     let mut data: Vec<HashMap<String, Value>> = Vec::new();
 
-    let value_hashmap: HashMap<String, Value> = serde_json::from_str(content).unwrap();
-
-    for (key, value) in value_hashmap {
-        if key == "data" {
-            match value {
-                Value::Array(array) => {
-                    for a in array {    
-                        data.push(serde_json::from_value(a).unwrap());
+    match serde_json::from_str::<HashMap<String, Value>>(content) {
+        Ok(value_hashmap) => {
+            for (key, value) in value_hashmap {
+                if key == "data" {
+                    match value {
+                        Value::Array(array) => {
+                            for a in array {
+                                data.push(serde_json::from_value(a).unwrap());
+                            }
+                        },
+                        _ => ()
                     }
-                },
-                _ => ()
+                }
             }
+
+            data
+        },
+        Err(_) => {
+            panic!("Something could be wrong with the json file. Maybe it is not valid.");
         }
     }
-
-    data
 }
 
 impl DB {
@@ -82,11 +102,10 @@ impl DB {
             let mut data: Vec<HashMap<String, Value>> = Vec::new();
             match fs::read_to_string(&table_name_path) {
                 Ok(content) => {
-                    //println!("{content}");
-                    schema = create_schema(&content);
+                    schema = create_schema(&content, &table_name_path);
                     data = create_data(&content);
                 },
-                Err(e) => println!("{e}")            
+                Err(e) => println!("Drin here ----------- {e}")            
             }
             
             match get_last_of_split(&table_name_path, "/") {
