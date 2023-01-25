@@ -9,7 +9,7 @@ impl DBs {
     pub fn new() -> Self {
         let db_name_paths = match sub_paths("./src/db/") {
             Ok(paths) => paths,
-            Err(e) => {
+            Err(_) => {
                 panic!("A folder with name 'db' should exist in the 'src' directory.");
             }
         };
