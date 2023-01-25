@@ -196,6 +196,6 @@ pub fn setup_progres_sql(config: Config) {
                 }
             }
         },
-        Err(_) => println!("One or mor pools couldn't be created")
+        Err(_) => println!("One or mor pools couldn't be created. Probably the login credantials are wrong.")
     }
 }
