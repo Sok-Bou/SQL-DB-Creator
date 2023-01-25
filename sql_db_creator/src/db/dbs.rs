@@ -10,7 +10,7 @@ impl DBs {
         let db_name_paths = match sub_paths("./src/db/") {
             Ok(paths) => paths,
             Err(e) => {
-                panic!("{e}");
+                panic!("A folder with name 'db' should exist in the 'src' directory.");
             }
         };
     
